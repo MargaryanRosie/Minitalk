@@ -13,7 +13,7 @@ static void	check_arguments(int argc, char *argv[])
 
 	if (argc < 3)
 	{
-		write(2, "Invalid number of arguments.\n", 30);
+		write(2, "Invalid number of arguments.\n", 29);
 		exit(1);
 	}
 	i = 0;
@@ -23,13 +23,13 @@ static void	check_arguments(int argc, char *argv[])
 			i++;
 		else 
 		{
-			write(2, "Invalid server PID.\n", 21);
+			write(2, "Invalid server PID.\n", 20);
 			exit(2);
 		}
 	}
 	if (argv[2][0] == '\0')
 	{
-		write(2, "Empty message.\n", 16);
+		write(2, "Empty message.\n", 15);
 		exit(3);
 	}
 }
@@ -43,7 +43,7 @@ static int	check_server_pid(pid_t server_pid)
 		return (1);
 	else
 	{
-		write(2, "Wrong PID.\n", 12);
+		write(2, "Wrong PID.\n", 11);
 		exit(1);
 	}
 }

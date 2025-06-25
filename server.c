@@ -11,34 +11,38 @@
 
 static void	signal_handler(int signal_number, siginfo_t *info, void *context)                      //info is needed so that if there are several clients sending messages, the bits will not be mixed together
 {
-	static int	bit_array[8];
-	static int	i = 0;
-	char		c;
-	int			j;
+	static int		counter = 8;
+	static char		c = 0;
+	static pid_t	client_pid = 0;
 
 	(void)context;
-	(void)info;
-	if (signal_number == SIGUSR1)
+	if (info->si_pid != client_pid)
 	{
-		bit_array[i] = 0;
-		i++;
+		client_pid = info->si_pid;
+		counter = 8;
+		c = 0;
 	}
+	if (signal_number == SIGUSR1)
+		counter--;
 	else if (signal_number == SIGUSR2)
 	{
-		bit_array[i] = 1;
-		i++;
-	}
-	if (i == 8)
-	{
-		c = 0;
-		j = 0;
-		while (j <= 7)
+		if (counter > 0)
 		{
-			c = (c << 1) | bit_array[j];
-			j++;
+			c = c | (1 << (counter - 1));
+			counter--;
 		}
-		write(1, &c, 1);
-		i = 0;
+	}
+	if (counter == 0)
+	{
+		if (c == '\0')
+		{
+			client_pid = 0;
+			write(1, "\n", 1);
+		}
+		else
+			write(1, &c, 1);
+		counter = 8;
+		c = 0;
 	}
 }
 

@@ -83,6 +83,7 @@ static void	send_message(char *message, int server_pid)
 		char_to_binary(message[i], server_pid);
 		i++;
 	}
+	char_to_binary(message[i], server_pid);
 }
 
 int	main(int argc, char *argv[])
@@ -95,6 +96,5 @@ int	main(int argc, char *argv[])
 	check_server_pid(server_pid);
 	message = argv[2];
 	send_message(message, server_pid);
-	send_message("\0", server_pid);              //so that the server knows that the message is complete
 	return (0);
 }

@@ -23,7 +23,10 @@ static void	signal_handler(int signal_number, siginfo_t *info, void *context)   
 		c = 0;
 	}
 	if (signal_number == SIGUSR1)
-		counter--;
+	{
+		if (counter > 0)
+			counter--;
+	}
 	else if (signal_number == SIGUSR2)
 	{
 		if (counter > 0)
@@ -35,10 +38,7 @@ static void	signal_handler(int signal_number, siginfo_t *info, void *context)   
 	if (counter == 0)
 	{
 		if (c == '\0')
-		{
 			client_pid = 0;
-			write(1, "\n", 1);
-		}
 		else
 			write(1, &c, 1);
 		counter = 8;
@@ -58,7 +58,6 @@ int	main(void)
 	act.sa_sigaction = signal_handler;
 	sigemptyset(&act.sa_mask);
 	act.sa_flags = SA_SIGINFO;                                  //so that the handler will receive additional info about the flag
-
 	sigaction(SIGUSR1, &act, NULL);
 	sigaction(SIGUSR2, &act, NULL);
 	while (1)

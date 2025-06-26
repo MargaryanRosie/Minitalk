@@ -14,7 +14,7 @@ static void	check_arguments(int argc, char *argv[])
 	if (argc < 3)
 	{
 		write(2, "Invalid number of arguments.\n", 29);
-		exit(1);
+		exit(8);
 	}
 	i = 0;
 	while (argv[1][i])
@@ -44,7 +44,7 @@ static int	check_server_pid(pid_t server_pid)
 	else
 	{
 		write(2, "Wrong PID.\n", 11);
-		exit(1);
+		exit(4);
 	}
 }
 
@@ -60,12 +60,12 @@ static void	char_to_binary(char c, int server_pid)
 		if (bit == 0)
 		{
 			if (kill(server_pid, SIGUSR1) == -1)
-                exit(1);
+                exit(5);
 		}
 		else if (bit == 1)
 		{
 			if (kill(server_pid, SIGUSR2) == -1)
-                exit(2);
+                exit(6);
 		}
 		usleep(300);        //pause for 100 microseconds because the signals are sent very fast and as server can handle one signal at a time, 
 		                    //if they will be sent very fast, some may be lost
@@ -95,6 +95,6 @@ int	main(int argc, char *argv[])
 	check_server_pid(server_pid);
 	message = argv[2];
 	send_message(message, server_pid);
-	send_message("\0", server_pid);              //so that the server knows that the message is complete
+	char_to_binary('\0', server_pid);            //so that the server knows that the message is complete
 	return (0);
 }

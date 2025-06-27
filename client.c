@@ -68,7 +68,7 @@ static void	char_to_binary(char c, int server_pid)
                 exit(6);
 		}
 		i--;
-		usleep(800);
+		usleep(300);
 	}
 }
 

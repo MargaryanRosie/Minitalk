@@ -7,7 +7,7 @@ static void	ack_handler(int sig)
 	if (sig == SIGUSR2)
 	{
 		write(1, "Server received the message\n", 28);
-		exit(10);
+		exit(EXIT_SUCCESS);
 	}
 	else if (sig == SIGUSR1)
 	{
@@ -23,7 +23,7 @@ static void	check_arguments(int argc, char *argv[])
 	if (argc != 3)
 	{
 		write(2, "Invalid number of arguments.\n", 29);
-		exit(8);
+		exit(EXIT_FAILURE);
 	}
 	i = 0;
 	while (argv[1][i])
@@ -33,13 +33,13 @@ static void	check_arguments(int argc, char *argv[])
 		else 
 		{
 			write(2, "Invalid server PID.\n", 20);
-			exit(2);
+			exit(EXIT_FAILURE);
 		}
 	}
 	if (argv[2][0] == '\0')
 	{
 		write(2, "Empty message.\n", 15);
-		exit(3);
+		exit(EXIT_FAILURE);
 	}
 }
 
@@ -53,7 +53,7 @@ static int	check_server_pid(pid_t server_pid)
 	else
 	{
 		write(2, "Wrong PID.\n", 11);
-		exit(4);
+		exit(EXIT_FAILURE);
 	}
 }
 
@@ -69,12 +69,12 @@ static void	char_to_binary(char c, int server_pid)
 		if (bit == 0)
 		{
 			if (kill(server_pid, SIGUSR1) == -1)
-                exit(5);
+                exit(EXIT_FAILURE);
 		}
 		else if (bit == 1)
 		{
 			if (kill(server_pid, SIGUSR2) == -1)
-                exit(6);
+                exit(EXIT_FAILURE);
 		}
 		i--;
 		while (!ack_received)
@@ -105,8 +105,8 @@ int	main(int argc, char *argv[])
 	server_pid = ft_atoi(argv[1]);
 	check_server_pid(server_pid);
 	message = argv[2];
-	signal(SIGUSR2, ack_handler);
-	signal(SIGUSR1, ack_handler);
+	signal(SIGUSR2, &ack_handler);
+	signal(SIGUSR1, &ack_handler);
 	send_message(message, server_pid);
 	while(1)
 		pause();

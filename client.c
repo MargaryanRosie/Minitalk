@@ -11,7 +11,7 @@ static void	check_arguments(int argc, char *argv[])
 {
 	int	i;
 
-	if (argc < 3)
+	if (argc != 3)
 	{
 		write(2, "Invalid number of arguments.\n", 29);
 		exit(8);
@@ -67,9 +67,8 @@ static void	char_to_binary(char c, int server_pid)
 			if (kill(server_pid, SIGUSR2) == -1)
                 exit(6);
 		}
-		usleep(300);        //pause for 100 microseconds because the signals are sent very fast and as server can handle one signal at a time, 
-		                    //if they will be sent very fast, some may be lost
 		i--;
+		usleep(800);
 	}
 }
 
@@ -83,6 +82,7 @@ static void	send_message(char *message, int server_pid)
 		char_to_binary(message[i], server_pid);
 		i++;
 	}
+	char_to_binary(message[i], server_pid);
 }
 
 int	main(int argc, char *argv[])
@@ -95,6 +95,5 @@ int	main(int argc, char *argv[])
 	check_server_pid(server_pid);
 	message = argv[2];
 	send_message(message, server_pid);
-	char_to_binary('\0', server_pid);            //so that the server knows that the message is complete
 	return (0);
 }

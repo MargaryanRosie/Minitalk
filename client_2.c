@@ -67,9 +67,8 @@ static void	char_to_binary(char c, int server_pid)
 			if (kill(server_pid, SIGUSR2) == -1)
                 exit(2);
 		}
-		usleep(100);        //pause for 100 microseconds because the signals are sent very fast and as server can handle one signal at a time, 
-		                    //if they will be sent very fast, some may be lost
 		i--;
+		usleep(300);
 	}
 }
 

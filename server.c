@@ -1,11 +1,3 @@
-
-// // struct sigaction {
-// //     void (*sa_handler)(int);
-// //     void (*sa_sigaction)(int, siginfo_t *, void *)
-// //     sigset_t sa_mask;             
-// //     int sa_flags;          
-// // };
-
 #include "minitalk.h"
 #include <signal.h>
 
@@ -37,13 +29,16 @@ static void	signal_handler(int signal_number, siginfo_t *info, void *context)   
 	}
 	if (counter == 0)
 	{
-		if (c == '\0')
-			client_pid = 0;
-		else
-			write(1, &c, 1);
+		if (c == '\0' && info->si_pid > 0)
+		{
+			kill(info->si_pid, SIGUSR2);
+		}
+		write(1, &c, 1);
 		counter = 8;
 		c = 0;
 	}
+	if (info->si_pid > 0)
+	kill(info->si_pid, SIGUSR1);            //acknowledgement for bit(when this signal is sent to the clent, ack becomes 1)
 }
 
 int	main(void)
@@ -56,10 +51,12 @@ int	main(void)
 	ft_putnbr(server_pid);
 	write(1, "\n", 1);
 	act.sa_sigaction = signal_handler;
-	sigemptyset(&act.sa_mask);
 	act.sa_flags = SA_SIGINFO;                                  //so that the handler will receive additional info about the flag
-	sigaction(SIGUSR1, &act, NULL);
-	sigaction(SIGUSR2, &act, NULL);
+	sigaddset(&act.sa_mask, SIGUSR1);
+	sigaddset(&act.sa_mask, SIGUSR2);
+	if (sigaction(SIGUSR1, &act, NULL) == -1
+		|| sigaction(SIGUSR2, &act, NULL) == -1)
+		exit(15);
 	while (1)
 		pause();
 	return (0);

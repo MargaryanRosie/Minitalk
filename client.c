@@ -1,11 +1,20 @@
-// struct sigaction {
-//     void (*sa_handler)(int); // Pointer to the handler function
-//     sigset_t sa_mask;        // set of signals to be blocked(if the handler is still running, this blocks other signals so that they dont interrupt the handler function)
-//     int sa_flags;            // Flags for additional behaviour, for example give additional info about the sender when the signal is sent or restart interrupted system calls
-// };
-
-
 #include "minitalk.h"
+
+int	ack_received = 0;
+
+static void	ack_handler(int sig)
+{
+	if (sig == SIGUSR2)
+	{
+		write(1, "Server received the message\n", 28);
+		exit(10);
+	}
+	else if (sig == SIGUSR1)
+	{
+		write(1, "Bit received\n", 13);
+		ack_received = 1;
+	}
+}
 
 static void	check_arguments(int argc, char *argv[])
 {
@@ -68,7 +77,9 @@ static void	char_to_binary(char c, int server_pid)
                 exit(6);
 		}
 		i--;
-		usleep(300);
+		while (!ack_received)
+			pause();
+		ack_received = 0;
 	}
 }
 
@@ -94,6 +105,10 @@ int	main(int argc, char *argv[])
 	server_pid = ft_atoi(argv[1]);
 	check_server_pid(server_pid);
 	message = argv[2];
+	signal(SIGUSR2, ack_handler);
+	signal(SIGUSR1, ack_handler);
 	send_message(message, server_pid);
+	while(1)
+		pause();
 	return (0);
 }

@@ -77,6 +77,7 @@ static void	char_to_binary(char c, int server_pid)
                 exit(EXIT_FAILURE);
 		}
 		i--;
+		usleep(800);
 		while (!ack_received)
 			pause();
 		ack_received = 0;

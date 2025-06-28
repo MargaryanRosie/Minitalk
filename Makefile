@@ -1,7 +1,7 @@
 SERVER = server
 CLIENT = client
 CC = cc
-CFLAGS = -g -fsanitize=address -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror
 
 SERVER_SRC = server.c utils/ft_putnbr.c
 CLIENT_SRC = client.c utils/ft_atoi.c utils/is_digit.c

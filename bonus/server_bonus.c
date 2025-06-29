@@ -1,11 +1,11 @@
-#include "minitalk.h"
+#include "../minitalk.h"
 #include <signal.h>
 
-static void	signal_handler(int signal_number, siginfo_t *info, void *context)                      //info is needed so that if there are several clients sending messages, the bits will not be mixed together
+static void	signal_handler(int signal_number, siginfo_t *info, void *context)
 {
-	static int					counter = 8;
-	static pid_t				client_pid = 0;
-	static unsigned char		c = 0;
+	static int				counter = 8;
+	static pid_t			client_pid = 0;
+	static unsigned char	c = 0;
 
 	(void)context;
 	if (!info)
@@ -37,7 +37,7 @@ static void	signal_handler(int signal_number, siginfo_t *info, void *context)   
 		counter = 8;
 		c = 0;
 	}
-	kill(info->si_pid, SIGUSR1);            //acknowledgement for bit(when this signal is sent to the clent, ack becomes 1)
+	kill(info->si_pid, SIGUSR1);
 }
 
 int	main(void)
@@ -50,8 +50,7 @@ int	main(void)
 	ft_putnbr(server_pid);
 	write(1, "\n", 1);
 	act.sa_sigaction = signal_handler;
-	act.sa_flags = SA_SIGINFO;                                  //so that the handler will receive additional info about the flag
-	
+	act.sa_flags = SA_SIGINFO;
 	sigemptyset(&act.sa_mask);
 	if (sigaction(SIGUSR1, &act, NULL) == -1
 		|| sigaction(SIGUSR2, &act, NULL) == -1)

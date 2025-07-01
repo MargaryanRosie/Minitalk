@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   client_bonus.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: romargar <romargar@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/01 13:48:30 by romargar          #+#    #+#             */
+/*   Updated: 2025/07/01 13:52:00 by romargar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minitalk.h"
 
 int	g_ack_received = 0;
@@ -11,7 +23,6 @@ void	ack_handler(int sig)
 	}
 	else if (sig == SIGUSR1)
 	{
-		//write(1, "Bit received\n", 13);
 		g_ack_received = 1;
 	}
 }
@@ -28,12 +39,12 @@ static void	char_to_binary(char c, int server_pid)
 		if (bit == 0)
 		{
 			if (kill(server_pid, SIGUSR1) == -1)
-                exit(EXIT_FAILURE);
+				exit(EXIT_FAILURE);
 		}
 		else if (bit == 1)
 		{
 			if (kill(server_pid, SIGUSR2) == -1)
-                exit(EXIT_FAILURE);
+				exit(EXIT_FAILURE);
 		}
 		i--;
 		usleep(800);
@@ -45,7 +56,7 @@ static void	char_to_binary(char c, int server_pid)
 
 static void	send_message(char *message, int server_pid)
 {
-	int		i;
+	int	i;
 
 	i = 0;
 	while (message[i])
@@ -68,7 +79,7 @@ int	main(int argc, char *argv[])
 	signal(SIGUSR2, &ack_handler);
 	signal(SIGUSR1, &ack_handler);
 	send_message(message, server_pid);
-	while(1)
+	while (1)
 		pause();
 	return (0);
 }

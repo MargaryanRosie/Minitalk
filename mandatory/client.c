@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   client.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: romargar <romargar@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/01 13:47:50 by romargar          #+#    #+#             */
+/*   Updated: 2025/07/01 13:47:51 by romargar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minitalk.h"
 
 int	g_ack_received = 0;
@@ -6,12 +18,10 @@ void	ack_handler(int sig)
 {
 	if (sig == SIGUSR2)
 	{
-		//write(1, "Server received the message\n", 28);
 		exit(EXIT_SUCCESS);
 	}
 	else if (sig == SIGUSR1)
 	{
-		//write(1, "Bit received\n", 13);
 		g_ack_received = 1;
 	}
 }
@@ -36,9 +46,8 @@ static void	char_to_binary(char c, int server_pid)
 				exit(EXIT_FAILURE);
 		}
 		i--;
-		usleep(800);
 		while (!g_ack_received)
-			pause();
+			usleep(100);
 		g_ack_received = 0;
 	}
 }

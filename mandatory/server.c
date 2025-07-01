@@ -1,21 +1,48 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   server.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: romargar <romargar@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/01 13:47:55 by romargar          #+#    #+#             */
+/*   Updated: 2025/07/01 14:50:25 by romargar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minitalk.h"
 #include <signal.h>
 
-static void	signal_handler(int signal_number, siginfo_t *info, void *context)                      //info is needed so that if there are several clients sending messages, the bits will not be mixed together
+static void	check_interrupt(pid_t *pid, int *counter, char *c, siginfo_t *info)
 {
-	static int					counter = 8;
-	static pid_t				client_pid = 0;
-	static unsigned char		c = 0;
+	if (*pid != info->si_pid)
+	{
+		*pid = info->si_pid;
+		*counter = 8;
+		*c = 0;
+	}
+}
+
+static void	output_char(char *c, int *counter, pid_t pid)
+{
+	if (*counter == 0)
+	{
+		if (*c == '\0')
+			kill(pid, SIGUSR2);
+		write(1, c, 1);
+		*counter = 8;
+		*c = 0;
+	}
+}
+
+static void	signal_handler(int signal_number, siginfo_t *info, void *context)
+{
+	static int		counter = 8;
+	static pid_t	client_pid = 0;
+	static char		c = 0;
 
 	(void)context;
-	if (!info)
-		return ;
-	if (client_pid != info->si_pid)
-	{
-		client_pid = info->si_pid;
-		counter = 8;
-		c = 0;
-	}
+	check_interrupt(&client_pid, &counter, &c, info);
 	if (signal_number == SIGUSR1)
 	{
 		if (counter > 0)
@@ -29,15 +56,8 @@ static void	signal_handler(int signal_number, siginfo_t *info, void *context)   
 			counter--;
 		}
 	}
-	if (counter == 0)
-	{
-		if (c == '\0')
-			kill(info->si_pid, SIGUSR2);
-		write(1, &c, 1);
-		counter = 8;
-		c = 0;
-	}
-	kill(info->si_pid, SIGUSR1);            //acknowledgement for bit(when this signal is sent to the clent, ack becomes 1)
+	output_char(&c, &counter, client_pid);
+	kill(info->si_pid, SIGUSR1);
 }
 
 int	main(void)
@@ -50,8 +70,7 @@ int	main(void)
 	ft_putnbr(server_pid);
 	write(1, "\n", 1);
 	act.sa_sigaction = signal_handler;
-	act.sa_flags = SA_SIGINFO;                                  //so that the handler will receive additional info about the flag
-	
+	act.sa_flags = SA_SIGINFO;
 	sigemptyset(&act.sa_mask);
 	if (sigaction(SIGUSR1, &act, NULL) == -1
 		|| sigaction(SIGUSR2, &act, NULL) == -1)

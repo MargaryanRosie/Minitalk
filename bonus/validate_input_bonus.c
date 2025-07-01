@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   validate_input_bonus.c                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: romargar <romargar@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/01 13:48:37 by romargar          #+#    #+#             */
+/*   Updated: 2025/07/01 14:49:46 by romargar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minitalk.h"
 
 void	check_arguments(int argc, char *argv[])
@@ -14,7 +26,7 @@ void	check_arguments(int argc, char *argv[])
 	{
 		if (is_digit(argv[1][i]))
 			i++;
-		else 
+		else
 		{
 			write(2, "Invalid server PID.\n", 20);
 			exit(EXIT_FAILURE);
@@ -27,9 +39,6 @@ void	check_arguments(int argc, char *argv[])
 	}
 }
 
-//kill function returns 0 if sending the signal to the specified pid was successful
-//valid process id is a positive number
-//kill(pid, 0)   does not send any signal, it is used to check if the pid is valid
 int	check_server_pid(pid_t server_pid)
 {
 	if (kill(server_pid, 0) == 0 && server_pid > 0)

@@ -1,21 +1,48 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   server_bonus.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: romargar <romargar@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/01 13:48:33 by romargar          #+#    #+#             */
+/*   Updated: 2025/07/01 14:11:13 by romargar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minitalk.h"
 #include <signal.h>
 
+static void	check_interrupt(pid_t *pid, int *counter, char *c, siginfo_t *info)
+{
+	if (*pid != info->si_pid)
+	{
+		*pid = info->si_pid;
+		*counter = 8;
+		*c = 0;
+	}
+}
+
+static void	output_char(char *c, int *counter, pid_t pid)
+{
+	if (*counter == 0)
+	{
+		if (*c == '\0')
+			kill(pid, SIGUSR2);
+		write(1, c, 1);
+		*counter = 8;
+		*c = 0;
+	}
+}
+
 static void	signal_handler(int signal_number, siginfo_t *info, void *context)
 {
-	static int				counter = 8;
-	static pid_t			client_pid = 0;
-	static unsigned char	c = 0;
+	static int		counter = 8;
+	static pid_t	client_pid = 0;
+	static char		c = 0;
 
 	(void)context;
-	if (!info)
-		return ;
-	if (client_pid != info->si_pid)
-	{
-		client_pid = info->si_pid;
-		counter = 8;
-		c = 0;
-	}
+	check_interrupt(&client_pid, &counter, &c, info);
 	if (signal_number == SIGUSR1)
 	{
 		if (counter > 0)
@@ -29,14 +56,7 @@ static void	signal_handler(int signal_number, siginfo_t *info, void *context)
 			counter--;
 		}
 	}
-	if (counter == 0)
-	{
-		if (c == '\0')
-			kill(info->si_pid, SIGUSR2);
-		write(1, &c, 1);
-		counter = 8;
-		c = 0;
-	}
+	output_char(&c, &counter, client_pid);
 	kill(info->si_pid, SIGUSR1);
 }
 
